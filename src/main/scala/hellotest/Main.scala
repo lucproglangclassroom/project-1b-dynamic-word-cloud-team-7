@@ -3,9 +3,6 @@ import java.util.Scanner
 import mainargs._
 import org.apache.commons.collections4.queue.CircularFifoQueue
 
-
-
-
 object Main {
   def main(args: Array[String]): Unit = {
     ParserForMethods(this).runOrExit(args.toIndexedSeq)
@@ -13,6 +10,8 @@ object Main {
   }
   @main def run(
            @arg(short = 'c', name = "cloudSize") cloudSize: Int = 10,
+           @arg(short = 's', name = "kSteps") kSteps: Int = 6,
+           @arg(short = 'f', name = "minFrequency") minFrequency: Int = 6,
            @arg(short = 'l', name = "minLength") minLength: Int = 6,
            @arg(short = 'w', name = "windowSize") windowSize: Int = 1000
          ): Unit = {
