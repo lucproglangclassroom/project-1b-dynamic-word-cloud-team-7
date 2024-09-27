@@ -1,4 +1,6 @@
 package hellotest
+
+import org.log4s._
 import java.util.Scanner
 import mainargs._
 import org.apache.commons.collections4.queue.CircularFifoQueue
@@ -50,6 +52,8 @@ class CircularQueue(capacity: Int) {
 
 object Main {
 
+  private[this] val logger = org.log4s.getLogger
+
   var PRINT_COUNTER: Int = 0
 
   def main(args: Array[String]): Unit = {
@@ -64,10 +68,8 @@ object Main {
                  @arg(short = 'w', name = "windowSize") windowSize: Int = 1000
                ): Unit = {
 
-
-    println(s"cloudSize: $cloudSize, minLength: $minLength, windowSize: $windowSize")
+    logger.debug(f"cloudSize : $cloudSize, kSteps : $kSteps, minFrequency : $minFrequency, minLength : $minLength, windowSize: $windowSize ")
     // Check for the correct number of arguments
-
 
     // Initialize the circular queue
     val queue = new CircularQueue(windowSize)
