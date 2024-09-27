@@ -2,6 +2,7 @@ package hellotest
 import java.util.Scanner
 import mainargs._
 import org.apache.commons.collections4.queue.CircularFifoQueue
+import ch.qos.logback
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -15,7 +16,7 @@ object Main {
            @arg(short = 'l', name = "minLength") minLength: Int = 6,
            @arg(short = 'w', name = "windowSize") windowSize: Int = 1000
          ): Unit = {
-    println(s"cloudSize: $cloudSize, minLength: $minLength, windowSize: $windowSize")
+    println(s"cloudSize: $cloudSize, kSteps: $kSteps, minFrequency: $minFrequency, minLength: $minLength, windowSize: $windowSize")
     queue(cloudSize, minLength, windowSize)
   }
 }
