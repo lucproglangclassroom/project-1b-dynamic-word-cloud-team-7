@@ -50,31 +50,21 @@ class CircularQueue(capacity: Int) {
 
 object Main {
 
-  var CLOUD_SIZE: Int = 10
-  var WORD_LENGTH: Int = 6
-  var WINDOW_SIZE: Int = 1000
-  var KWORDS: Int = 10
+  
   var PRINT_COUNTER: Int = 0
-  var MIN_FREQUENCY: Int = 3
-
-
+  
   def main(args: Array[String]): Unit = {
     ParserForMethods(this).runOrExit(args.toIndexedSeq)
     ()
     }
     @main def run(
-           @arg(short = 'c', name = "cloudSize") cloudSize: Int = 10,
-           @arg(short = 's', name = "kSteps") kSteps: Int = 6,
-           @arg(short = 'f', name = "minFrequency") minFrequency: Int = 6,
-           @arg(short = 'l', name = "minLength") minLength: Int = 6,
-           @arg(short = 'w', name = "windowSize") windowSize: Int = 1000
+           @arg(short = 'c', name = "cloudSize") CLOUD_SIZE: Int = 10,
+           @arg(short = 's', name = "kSteps") KWORDS: Int = 6,
+           @arg(short = 'f', name = "minFrequency") MIN_FREQUENCY: Int = 6,
+           @arg(short = 'l', name = "minLength") WORD_LENGTH: Int = 6,
+           @arg(short = 'w', name = "windowSize") WINDOW_SIZE: Int = 1000
     ): Unit = {
    
-      CLOUD_SIZE = cloudSize
-      WORD_LENGTH = minLength
-      WINDOW_SIZE = windowSize
-      KWORDS = kSteps
-      MIN_FREQUENCY = minFrequency
       println(s"cloudSize: $CLOUD_SIZE, minLength: $WORD_LENGTH, windowSize: $WINDOW_SIZE")
       // Check for the correct number of arguments
       
