@@ -10,9 +10,11 @@ import org.scalatest.matchers.should.Matchers
 
 class WordCloudTest extends AnyFlatSpec with Matchers {
 
-"A word cloud with only 1 unique word" should "have only 1 unique word" in {
+"A word cloud with only 1 unique word" should "have only 1 element" in {
   val sut = new CircularQueue(6)
-  val words = Iterator("asking", "asking", "asking", "asking", "asking", "asking")
+  for(a <- 0 to 10) {
+    sut.add("asking")
+  }
   assert(sut.topFrequentWords(6, 1).length == 1)
-    }
+  }
 }
