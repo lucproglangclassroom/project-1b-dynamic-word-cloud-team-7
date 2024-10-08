@@ -14,29 +14,30 @@ import scala.collection.mutable.Queue
 
 import scala.collection.mutable
 
-class CircularQueue(capacity: Int) {
-  private val queue = mutable.Queue.empty[String]
-  private val wordCount = mutable.Map[String, Int]().withDefaultValue(0)
+class CircularQueue(val capacity: Int, val queue: List[String] = List(), val wordCount: Map[String, Int] = Map().withDefaultValue(0)) {
+  def add(elements: List[String]): CircularQueue = {
+    val finalState = elements.iterator.scanLeft((queue, wordCount)) {
+      case ((currentQueue, currentWordCount), element) =>
+        val (newQueue, newWordCount) = if (currentQueue.size >= capacity) {
+          val removed = currentQueue.head
+          val updatedQueue = currentQueue.tail
+          val updatedWordCount = currentWordCount.updated(removed, currentWordCount(removed) - 1)
+          val finalWordCount = if (updatedWordCount(removed) == 0) updatedWordCount - removed else updatedWordCount
+          (updatedQueue, finalWordCount)
+        } else {
+          (currentQueue, currentWordCount)
+        }
 
-  def add(element: String): Unit = {
-    // If queue is full, remove the oldest element and update the word count
-    if (queue.size >= capacity) {
-      val removed = queue.dequeue()
-      wordCount(removed) -= 1
-      if (wordCount(removed) == 0) {
-        wordCount.remove(removed)
-      }
-    }
+        val updatedQueue = newQueue :+ element
+        val updatedWordCount = newWordCount.updated(element, newWordCount(element) + 1)
 
-    // Add the new element and update the word count
-    queue.enqueue(element)
-    wordCount(element) += 1
+        (updatedQueue, updatedWordCount)
+    }.toList.last
+
+    new CircularQueue(capacity, finalState._1, finalState._2)
   }
 
-  def getElements: Seq[String] = queue.toSeq
-
   def size: Int = queue.size
-
 
   def topFrequentWords(topN: Int, minFrequency: Int): Seq[(String, Int)] = {
     wordCount
@@ -60,6 +61,7 @@ object Main {
     ParserForMethods(this).runOrExit(args.toIndexedSeq)
     ()
   }
+
   @main def run(
                  @arg(short = 'c', name = "cloudSize") cloudSize: Int = 10,
                  @arg(short = 's', name = "kSteps") kSteps: Int = 6,
@@ -69,39 +71,41 @@ object Main {
                ): Unit = {
 
     logger.debug(f"cloudSize : $cloudSize, kSteps : $kSteps, minFrequency : $minFrequency, minLength : $minLength, windowSize: $windowSize ")
-    // Check for the correct number of arguments
 
-    // Initialize the circular queue
-    val queue = new CircularQueue(windowSize)
-
-    // Read input from standard input and split it into words
     val lines = Source.stdin.getLines
     val words = lines.flatMap(line => line.split("(?U)[^\\p{Alpha}0-9']+"))
 
-    // Process each word and add to the queue
-    try {
-      words.foreach { word =>
+    
+    def processWords(queue: CircularQueue, wordStream: Iterator[String]): Unit = {
+      if (wordStream.hasNext) {
+        val word = wordStream.next()
         if (word.length >= minLength) {
-          //case insensitive now
           val lowercasedWord = word.toLowerCase
-          queue.add(lowercasedWord)
 
-          if (queue.size >= windowSize) {
-            // kWords = 1 by default
-            //print counter = 0 by default
+          // Get the new queue after adding the word
+          val updatedQueue = queue.add(List(lowercasedWord))
+
+          if (updatedQueue.size >= windowSize) {
             PRINT_COUNTER += 1
-            if (PRINT_COUNTER % kSteps == 0){
-              val topWords = queue.topFrequentWords(cloudSize, minFrequency)
-              println(s"Top words: $topWords") // Print the top frequent words
-              if scala.sys.process.stdout.checkError() then sys.exit(1) //I think this is how we handle SIGPIPE?
+            if (PRINT_COUNTER % kSteps == 0) {
+              val topWords = updatedQueue.topFrequentWords(cloudSize, minFrequency)
+              println(s"Top words: $topWords")
             }
           }
+
+          
+          processWords(updatedQueue, wordStream)
+        } else {
+          
+          processWords(queue, wordStream)
         }
       }
-    } catch {
-      case _: NoSuchElementException =>
-        println("End of input (Ctrl-D) detected")
     }
+
+    // Start the recursive word processing with an empty CircularQueue
+    processWords(new CircularQueue(windowSize), words)
   }
 }
+
+
 
