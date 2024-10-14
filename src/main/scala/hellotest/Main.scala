@@ -13,6 +13,18 @@ import scala.language.unsafeNulls
 import scala.collection.mutable.Queue
 import scala.collection.mutable
 
+object TestLogger {
+  var logs: List[String] = Nil
+
+  def log(message: String): Unit = {
+    logs = message :: logs
+  }
+
+  def clear(): Unit = {
+    logs = Nil
+  }
+}
+
 class CircularQueue(val capacity: Int, val queue: List[String] = List(), val wordCount: Map[String, Int] = Map().withDefaultValue(0)) {
   def add(elements: List[String]): CircularQueue = {
     val finalState = elements.iterator.scanLeft((queue, wordCount)) {
@@ -35,6 +47,8 @@ class CircularQueue(val capacity: Int, val queue: List[String] = List(), val wor
 
     new CircularQueue(capacity, finalState._1, finalState._2)
   }
+
+
 
   def size: Int = queue.size
 
@@ -71,6 +85,7 @@ object Main {
           if (PRINT_COUNTER % kSteps == 0) {
             val topWords = updatedQueue.topFrequentWords(cloudSize, minFrequency)
             println(s"Top words: $topWords")
+            TestLogger.log(s"Top words: $topWords")
           }
         }
 
