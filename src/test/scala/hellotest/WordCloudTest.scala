@@ -50,7 +50,7 @@ class WordCloudTest extends AnyFlatSpec with Matchers {
     Main.processWords(sut, words, 7, 1, 1, 1, 1)
     TestLogger.logs.isEmpty should be (true)
   }
-  "A word cloud where no words go above the minLength" should "have an empty topWords list" in {
+  "A word cloud where the number of words is less than cloudSize" should "have an empty topWords list" in {
     TestLogger.clear() // Reset logs
     val sut = new CircularQueue(6)
     val words = Iterator("asking",
@@ -59,7 +59,19 @@ class WordCloudTest extends AnyFlatSpec with Matchers {
       "wall",
       "hear",
       "nine")
-    Main.processWords(sut, words, 7, 1, 1, 1, 1)
+    Main.processWords(sut, words, 1, 10, 1, 1, 1)
+    TestLogger.logs should contain("Top words: List()")
+  }
+  "A word cloud where with fewer words than the minimum number of steps" should "not have printed" in {
+    TestLogger.clear() // Reset logs
+    val sut = new CircularQueue(6)
+    val words = Iterator("asking",
+      "time",
+      "free",
+      "wall",
+      "hear",
+      "nine")
+    Main.processWords(sut, words, 1, 1, 10, 1, 1)
     TestLogger.logs.isEmpty should be(true)
   }
 
