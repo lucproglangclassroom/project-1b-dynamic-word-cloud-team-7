@@ -1,17 +1,16 @@
 package hellotest
 
-import org.log4s._
+import org.log4s.*
+
 import java.util.Scanner
-import mainargs._
+import mainargs.*
 import org.apache.commons.collections4.queue.CircularFifoQueue
 
-
 import java.util.NoSuchElementException
+import scala.annotation.tailrec
 import scala.io.Source
 import scala.language.unsafeNulls
-
 import scala.collection.mutable.Queue
-
 import scala.collection.mutable
 
 class CircularQueue(val capacity: Int, val queue: List[String] = List(), val wordCount: Map[String, Int] = Map().withDefaultValue(0)) {
@@ -57,6 +56,31 @@ object Main {
 
   var PRINT_COUNTER: Int = 0
 
+  @tailrec
+  def processWords(queue: CircularQueue, wordStream: Iterator[String], minLength: Int, cloudSize: Int, kSteps: Int, windowSize: Int, minFrequency: Int): Unit = {
+    if (wordStream.hasNext) {
+      val word = wordStream.next()
+      if (word.length >= minLength) {
+        val lowercasedWord = word.toLowerCase
+
+        // Get the new queue after adding the word
+        val updatedQueue = queue.add(List(lowercasedWord))
+
+        if (updatedQueue.size >= windowSize) {
+          PRINT_COUNTER += 1
+          if (PRINT_COUNTER % kSteps == 0) {
+            val topWords = updatedQueue.topFrequentWords(cloudSize, minFrequency)
+            println(s"Top words: $topWords")
+          }
+        }
+
+        processWords(updatedQueue, wordStream, minLength, cloudSize, kSteps, windowSize, minFrequency)
+      } else {
+        processWords(queue, wordStream, minLength, cloudSize, kSteps, windowSize, minFrequency)
+      }
+    }
+  }
+
   def main(args: Array[String]): Unit = {
     ParserForMethods(this).runOrExit(args.toIndexedSeq)
     ()
@@ -75,35 +99,7 @@ object Main {
     val lines = Source.stdin.getLines
     val words = lines.flatMap(line => line.split("(?U)[^\\p{Alpha}0-9']+"))
 
-    
-    def processWords(queue: CircularQueue, wordStream: Iterator[String]): Unit = {
-      if (wordStream.hasNext) {
-        val word = wordStream.next()
-        if (word.length >= minLength) {
-          val lowercasedWord = word.toLowerCase
-
-          // Get the new queue after adding the word
-          val updatedQueue = queue.add(List(lowercasedWord))
-
-          if (updatedQueue.size >= windowSize) {
-            PRINT_COUNTER += 1
-            if (PRINT_COUNTER % kSteps == 0) {
-              val topWords = updatedQueue.topFrequentWords(cloudSize, minFrequency)
-              println(s"Top words: $topWords")
-            }
-          }
-
-          
-          processWords(updatedQueue, wordStream)
-        } else {
-          
-          processWords(queue, wordStream)
-        }
-      }
-    }
-
-    // Start the recursive word processing with an empty CircularQueue
-    processWords(new CircularQueue(windowSize), words)
+    processWords(new CircularQueue(windowSize), words, minLength, cloudSize, kSteps, windowSize, minFrequency)
   }
 }
 
